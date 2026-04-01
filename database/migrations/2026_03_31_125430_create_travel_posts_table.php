@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('location');
             $table->string('country');
+            $table->img('img')->nullable();
             $table->text('description');
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();

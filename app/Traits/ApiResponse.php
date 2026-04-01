@@ -9,7 +9,7 @@ trait ApiResponse
     /* Utile sia per risposte di successo che errori */
     protected function apiResponse(
         bool $success,
-        $dataOrErrors,
+        ?mixed $dataOrErrors = null,
         int $code = 200,
         ?string $message = null,
     ) {

@@ -18,6 +18,16 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'posts' => $this->whenLoaded('posts', function ($posts) {
+                return $posts->map(
+                    fn($post) => [
+                        'id' => $post->id,
+                        'title' => $post->title,
+                        'description' => $post->description,
+                        'country' => $post->country,
+                    ],
+                );
+            }),
         ];
     }
 }
