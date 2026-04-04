@@ -16,15 +16,13 @@ class TravelPostResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
+            'location' => $this->location,
+            'slug' => $this->slug,
             'description' => $this->description,
             'country' => $this->country,
-            'author' => $this->whenLoaded('user', function ($user) {
-                return [
-                    'name' => $user->full_name,
-                    'email' => $user->email,
-                ];
-            }),
+            'img' => $this->img,
+            'countLike' => $this->whenCounted('post'),
+            'author' => $this->whenLoaded('user', new UserResource($this->user)),
             'likes' => $this->whenCounted('likes'),
             'comments' => $this->whenLoaded('comments'),
         ];

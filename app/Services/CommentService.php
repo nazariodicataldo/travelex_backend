@@ -19,33 +19,15 @@ class CommentService
 
     public function store(StoreCommentRequest $request)
     {
-        try {
-            $data = $request->validated();
+        $data = $request->validated();
 
-            return $this->apiResponse(true, Comment::create($data));
-        } catch (\Exception $e) {
-            return $this->apiResponse(
-                false,
-                $e->getMessage(),
-                $e->getCode(),
-                'Error while sending comment to post',
-            );
-        }
+        return $this->apiResponse(true, Comment::create($data));
     }
 
     public function destroy(Comment $comment)
     {
-        try {
-            $comment->delete();
+        $comment->delete();
 
-            return $this->apiResponse(true, null, 204);
-        } catch (\Exception $e) {
-            return $this->apiResponse(
-                false,
-                $e->getMessage(),
-                $e->getCode(),
-                'Error while deleting comment from the post',
-            );
-        }
+        return $this->apiResponse(true, null, 204);
     }
 }

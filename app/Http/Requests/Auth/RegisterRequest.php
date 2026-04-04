@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
-class UpdateTravelPostRequest extends FormRequest
+class RegisterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +23,9 @@ class UpdateTravelPostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'location' => ['sometimes', 'string', 'min:2', 'max:60'],
-            'description' => ['sometimes', 'string', 'min:2', 'max:600'],
-            'country' => ['sometimes', 'string', 'min:2', 'max: 3'],
-            'img' => ['nullable', 'image', 'max:2048'],
+            'username' => ['required', 'string', 'min:2', 'max:50', 'unique:users,username'],
+            'email' => ['required', 'string', 'email', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Password::default()],
         ];
     }
 }

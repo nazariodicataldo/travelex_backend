@@ -20,17 +20,8 @@ class LikeService
 
     public function store(StoreLikeRequest $request)
     {
-        try {
-            $data = $request->validated();
+        $data = $request->validated();
 
-            return $this->apiResponse(true, Like::create($data));
-        } catch (\Exception $e) {
-            return $this->apiResponse(
-                false,
-                $e->getMessage(),
-                $e->getCode(),
-                'Error while adding like to post',
-            );
-        }
+        return $this->apiResponse(true, Like::create($data));
     }
 }

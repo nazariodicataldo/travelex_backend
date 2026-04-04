@@ -22,7 +22,7 @@ class StoreTravelPostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'min:2', 'max:60'],
+            'location' => ['required', 'string', 'min:2', 'max:60'],
             'description' => ['required', 'string', 'min:2', 'max:600'],
             'country' => ['required', 'string', 'min:2', 'max: 3'],
             'img' => ['nullable', 'image', 'max:2048'],

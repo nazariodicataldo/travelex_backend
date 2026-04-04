@@ -6,10 +6,10 @@ use function PHPUnit\Framework\isNull;
 trait ApiResponse
 {
     /* Helper per generare delle response Json */
+    public static function apiResponse(
     /* Utile sia per risposte di successo che errori */
-    protected function apiResponse(
         bool $success,
-        ?mixed $dataOrErrors = null,
+        mixed $dataOrErrors = null,
         int $code = 200,
         ?string $message = null,
     ) {

@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-/* use App\Models\TravelPost; */
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class CommentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +15,9 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'username' => $this->username,
-            'email' => $this->email,
-            /* 'posts' => $this->whenLoaded('posts', TravelPostResource::collection($this->posts)), */
+            'comment' => $this->comment,
+            'post' => $this->whenLoaded('post', new TravelPostResource($this->post)),
+            'user' => $this->whenLoaded('user', new UserResource($this->user)),
         ];
     }
 }
