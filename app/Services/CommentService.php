@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Requests\StoreCommentRequest;
 use App\Models\Comment;
 use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\Auth;
 
 class CommentService
 {
@@ -21,13 +22,16 @@ class CommentService
     {
         $data = $request->validated();
 
-        return $this->apiResponse(true, Comment::create($data));
+        //creo il commento a partire dall'utente
+        $comment = Auth::user()->comments()->create($data);
+
+        return $this->apiResponse(true, $comment);
     }
 
-    public function destroy(Comment $comment)
+    public function destroy(Comment $comment_model)
     {
-        $comment->delete();
+        $comment_model->delete();
 
-        return $this->apiResponse(true, null, 204);
+        return $this->apiResponse(true, 'Comment deleted', 200);
     }
 }

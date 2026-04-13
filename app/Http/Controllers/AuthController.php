@@ -41,7 +41,7 @@ class AuthController extends Controller
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return $this->apiResponse(true, [
@@ -55,5 +55,10 @@ class AuthController extends Controller
         Auth::user()->tokens()->delete();
 
         return $this->apiResponse(true, null, 204, 'Logout successful');
+    }
+
+    public function me()
+    {
+        return $this->apiResponse(true, new UserResource(Auth::user(), 200));
     }
 }

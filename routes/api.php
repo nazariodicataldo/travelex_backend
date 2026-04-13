@@ -12,18 +12,26 @@ Route::controller(UserController::class, function () {
     Route::post('/users', 'store')->name('users.store');
     Route::get('/users/{id}', 'show')->name('users.show');
 });
-Route::apiResource('/users', UserController::class);
+/* Route::apiResource('/users', UserController::class); */
 
-//Rotte dei post
-Route::apiResource('/posts', TravelPostController::class);
+//Rotte dei post (accessibili a tutti)
+Route::get('/posts', [TravelPostController::class, 'index'])->name('posts.index');
+Route::get('/posts/{id}', [TravelPostController::class, 'show'])->name('posts.show');
 
-/* Rotte dei likes */
-Route::post('/likes', [LikeController::class, 'store'])->name('likes.store');
+//Rotte dei post (solo per utenti autenticati)
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/posts', [TravelPostController::class, 'store'])->name('posts.store');
+    Route::put('/posts/{id}', [TravelPostController::class, 'update'])->name('posts.update');
+    Route::delete('/posts/{id}', [TravelPostController::class, 'destroy'])->name('posts.destroy');
 
-/* Rotte dei commenti */
-Route::controller(CommentController::class)->group(function () {
-    Route::post('/comments', 'store')->name('comments.store');
-    Route::delete('/comments', 'destroy')->name('comments.destroy');
+    /* Rotte dei likes */
+    Route::post('/likes', [LikeController::class, 'store'])->name('likes.store');
+
+    /* Rotte dei commenti */
+    Route::controller(CommentController::class)->group(function () {
+        Route::post('/comments', 'store')->name('comments.store');
+        Route::delete('/comments/{comment_model}', 'destroy')->name('comments.destroy');
+    });
 });
 
 /* Route per l'autenticazione */
@@ -32,4 +40,6 @@ Route::prefix('/auth')
     ->group(function () {
         Route::post('/register', 'register')->name('auth.register');
         Route::post('/login', 'login')->name('auth.login');
+        Route::post('/logout', 'logout')->name('auth.logout');
+        Route::get('/me', 'me')->name('auth.me');
     });

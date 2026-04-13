@@ -6,6 +6,7 @@ use App\Http\Requests\StoreTravelPostRequest;
 use App\Http\Requests\UpdateTravelPostRequest;
 use App\Models\TravelPost;
 use App\Services\TravelPostService;
+use Illuminate\Http\Request;
 
 class TravelPostController extends Controller
 {
@@ -14,9 +15,9 @@ class TravelPostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->travelPostService->index();
+        return $this->travelPostService->index($request);
     }
 
     /**
@@ -30,9 +31,9 @@ class TravelPostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(TravelPost $travel_post)
+    public function show(string $id)
     {
-        return $this->travelPostService->show($travel_post);
+        return $this->travelPostService->show($id);
     }
 
     /**

@@ -7,20 +7,20 @@ trait ApiResponse
 {
     /* Helper per generare delle response Json */
     public static function apiResponse(
-    /* Utile sia per risposte di successo che errori */
+        /* Utile sia per risposte di successo che errori */
         bool $success,
         mixed $dataOrErrors = null,
         int $code = 200,
         ?string $message = null,
     ) {
         $payload = [
-            "success" => $success,
-            $success ? "data" : "errors" => $dataOrErrors,
-            "timestamp" => now()->format("Y-m-d H:i:s"),
+            'success' => $success,
+            $success ? 'data' : 'errors' => $dataOrErrors,
+            'timestamp' => now()->format('Y-m-d H:i:s'),
         ];
 
         if ($message) {
-            $payload["message"] = $message;
+            $payload['message'] = $message;
         }
 
         return response()->json($payload, $code);

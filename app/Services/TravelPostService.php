@@ -24,7 +24,7 @@ class TravelPostService
     public function filterPosts(Request $request)
     {
         //colonne ammesse per l'ordinamento
-        $allowed_columns = ['created_at', 'count_likes', 'count_comments'];
+        $allowed_columns = ['created_at', 'likes_count', 'comments_count'];
         //ordinamento consentito
         $allowed_orders = ['asc', 'desc'];
 
@@ -43,9 +43,16 @@ class TravelPostService
         $query = TravelPost::query()
             /* Carica il numero di likes e commenti */
             ->withCount(['likes', 'comments'])
-            /* Filtro per nome */
-            ->when($request->query('title'), function ($query, $name) {
-                return $query->where('name', 'ILIKE', '%' . $name . '%');
+            /* Carica i commenti e li ordina */
+            ->with([
+                'comments' => function ($query) {
+                    //carico i commenti, ordinandoli per ultimi pubblicati
+                    $query->orderBy('created_at', 'desc');
+                },
+            ])
+            /* Filtro per location */
+            ->when($request->query('location'), function ($query, $location) {
+                return $query->where('location', 'ILIKE', '%' . $location . '%');
             })
             /* Filtro per destinazione */
             ->when($request->query('country'), function ($query, $country) {
@@ -59,27 +66,61 @@ class TravelPostService
         /* Return condizionale */
         return $perPage || $page
             ? //se l'utente passa perPage vuol dire che è interessato alla paginazione
-            $query->paginate($perPage ?? 12, ['*'], $page ?? 1)->withQueryString()
+            $query->simplePaginate($perPage ?? 12, ['*'], 'page', $page ?? 1)->withQueryString()
             : //altrimenti mostro tutti i prodotti
             $query->get();
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return $this->apiResponse(true, TravelPostResource::collection(TravelPost::all()));
+        return $this->apiResponse(
+            true,
+            TravelPostResource::collection($this->filterPosts($request)),
+        );
+
+        /* $posts = $this->filterPosts($request);
+
+        // Genera l'intervallo di tutti i link (da pagina 1 a lastPage)
+        $allLinks = collect($posts->getUrlRange(1, $posts->lastPage()));
+
+        return $this->apiResponse(
+            true,
+            TravelPostResource::collection($this->filterPosts($request)),
+            200,
+            null,
+            [
+                'total' => $posts->total(),
+                'currentPage' => $posts->currentPage(),
+                'lastPage' => $posts->lastPage(),
+                'perPage' => $posts->perPage(),
+                'next' => $posts->nextPageUrl(),
+                'prev' => $posts->previousPageUrl(),
+                'allPages' => $allLinks,
+            ],
+        ); */
     }
 
     public function store(StoreTravelPostRequest $request)
     {
         $data = $request->validated();
 
-        $post = Auth::user()->post()->create($data);
+        $post = Auth::user()->travelPosts()->create($data);
 
         return $this->apiResponse(true, new TravelPostResource($post), 201);
     }
 
-    public function show(TravelPost $travel_post)
+    public function show(string $id)
     {
+        $travel_post = TravelPost::whereId($id)
+            ->withCount(['likes', 'comments'])
+            ->with([
+                'comments' => function ($query) {
+                    //carico i commenti, ordinandoli per ultimi pubblicati
+                    $query->orderBy('created_at', 'desc');
+                },
+            ])
+
+            ->first();
         return $this->apiResponse(true, new TravelPostResource($travel_post));
     }
 
