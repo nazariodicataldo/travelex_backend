@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateTravelPostRequest;
 use App\Models\TravelPost;
 use App\Services\TravelPostService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class TravelPostController extends Controller
 {
@@ -41,6 +42,7 @@ class TravelPostController extends Controller
      */
     public function update(UpdateTravelPostRequest $request, TravelPost $travel_post)
     {
+        Gate::authorize('update', $travel_post);
         return $this->travelPostService->update($request, $travel_post);
     }
 
@@ -49,6 +51,7 @@ class TravelPostController extends Controller
      */
     public function destroy(TravelPost $travel_post)
     {
+        Gate::authorize('delete', $travel_post);
         return $this->travelPostService->destroy($travel_post);
     }
 }

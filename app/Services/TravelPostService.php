@@ -23,6 +23,8 @@ class TravelPostService
 
     public function filterPosts(Request $request)
     {
+        $authId = auth('sanctum')->id();
+
         //colonne ammesse per l'ordinamento
         $allowed_columns = ['created_at', 'likes_count', 'comments_count'];
         //ordinamento consentito
@@ -43,6 +45,12 @@ class TravelPostService
         $query = TravelPost::query()
             /* Carica il numero di likes e commenti */
             ->withCount(['likes', 'comments'])
+            /* Carica i likes e verifica se esiste un utente con lo stesso Id dell'utente autenticato e ritorna 1/0 */
+            ->withExists([
+                'likes as liked_by_me' => function ($q) use ($authId) {
+                    $q->where('user_id', $authId);
+                },
+            ])
             /* Carica i commenti e li ordina */
             ->with([
                 'comments' => function ($query) {
@@ -111,8 +119,15 @@ class TravelPostService
 
     public function show(string $id)
     {
+        $authId = auth('sanctum')->id();
+
         $travel_post = TravelPost::whereId($id)
             ->withCount(['likes', 'comments'])
+            ->withExists([
+                'likes as liked_by_me' => function ($q) use ($authId) {
+                    $q->where('user_id', $authId);
+                },
+            ])
             ->with([
                 'comments' => function ($query) {
                     //carico i commenti, ordinandoli per ultimi pubblicati
@@ -126,15 +141,18 @@ class TravelPostService
 
     public function update(UpdateTravelPostRequest $request, TravelPost $travel_post)
     {
-        $data = $request->validate();
 
-        return $this->apiResponse(true, new TravelPostResource($travel_post->update($data)));
+        $data = $request->validated();
+
+        $travel_post->update($data);
+
+        return $this->apiResponse(true, new TravelPostResource($travel_post->refresh()));
     }
 
     public function destroy(TravelPost $travel_post)
     {
         $travel_post->delete();
 
-        return $this->apiResponse(true, null, 204);
+        return $this->apiResponse(true, 'Post deleted successfully', 200);
     }
 }

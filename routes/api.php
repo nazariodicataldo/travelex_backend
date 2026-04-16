@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Route;
 //Rotte degli utenti
 Route::controller(UserController::class, function () {
     Route::post('/users', 'store')->name('users.store');
-    Route::get('/users/{id}', 'show')->name('users.show');
 });
+Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
 /* Route::apiResource('/users', UserController::class); */
 
 //Rotte dei post (accessibili a tutti)
@@ -20,9 +20,15 @@ Route::get('/posts/{id}', [TravelPostController::class, 'show'])->name('posts.sh
 
 //Rotte dei post (solo per utenti autenticati)
 Route::middleware(['auth:sanctum'])->group(function () {
+    /* Rotte dei posts */
+
     Route::post('/posts', [TravelPostController::class, 'store'])->name('posts.store');
-    Route::put('/posts/{id}', [TravelPostController::class, 'update'])->name('posts.update');
-    Route::delete('/posts/{id}', [TravelPostController::class, 'destroy'])->name('posts.destroy');
+    Route::put('/posts/{travel_post}', [TravelPostController::class, 'update'])->name(
+        'posts.update',
+    );
+    Route::delete('/posts/{travel_post}', [TravelPostController::class, 'destroy'])->name(
+        'posts.destroy',
+    );
 
     /* Rotte dei likes */
     Route::post('/likes', [LikeController::class, 'store'])->name('likes.store');

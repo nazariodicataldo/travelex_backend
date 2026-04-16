@@ -15,8 +15,8 @@ class LikeResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'post' => $this->whenLoaded('post', new TravelPostResource($this->post)),
-            'user' => $this->whenLoaded('user', new UserResource($this->user)),
+            'post' => $this->whenLoaded('travelPost', new TravelPostResource($this->travelPost)),
+            /* 'user' => $this->whenLoaded('user', new UserResource($this->user)), */
         ];
     }
 }

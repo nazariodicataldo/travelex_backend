@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCommentRequest;
 use App\Models\Comment;
 use App\Services\CommentService;
+use Illuminate\Support\Facades\Gate;
 
 class CommentController extends Controller
 {
@@ -13,7 +14,8 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCommentRequest $request) {
+    public function store(StoreCommentRequest $request)
+    {
         return $this->commentService->store($request);
     }
 
@@ -22,6 +24,8 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment_model)
     {
+        Gate::authorize('delete', $comment_model);
+
         return $this->commentService->destroy($comment_model);
     }
 }

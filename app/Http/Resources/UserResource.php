@@ -19,7 +19,8 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'username' => $this->username,
             'email' => $this->email,
-            /* 'posts' => $this->whenLoaded('posts', TravelPostResource::collection($this->posts)), */
+            'likes' => LikeResource::collection($this->whenLoaded('likes')),
+            'posts' => TravelPostResource::collection($this->whenLoaded('travelPosts')),
         ];
     }
 }

@@ -27,7 +27,16 @@ class AuthController extends Controller
 
         event(new Registered($user));
 
-        return $this->apiResponse(true, 'Registration successful', 201);
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return $this->apiResponse(
+            true,
+            [
+                'user' => new UserResource($user),
+                'token' => $token,
+            ],
+            201,
+        );
     }
 
     //return $this->apiResponse(false, 'Invalid credentials', 422);
