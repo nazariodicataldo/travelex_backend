@@ -32,9 +32,9 @@ class TravelPostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(TravelPost $travel_post)
     {
-        return $this->travelPostService->show($id);
+        return $this->travelPostService->show($travel_post);
     }
 
     /**

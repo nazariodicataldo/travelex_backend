@@ -9,6 +9,7 @@ use App\Models\TravelPost;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class TravelPostService
 {
@@ -110,48 +111,99 @@ class TravelPostService
 
     public function store(StoreTravelPostRequest $request)
     {
-        $data = $request->validated();
+        //path iniziale dell'immagine (è un campo opzionale)
+        $imagePath = null;
 
-        $post = Auth::user()->travelPosts()->create($data);
+        //try-catch per gestire l'upload dell' immagine come una transaction
+        try {
+            //se nella richiesta c'era un immagine, imposta il nuovo path
+            if ($request->hasFile('img')) {
+                $imagePath = $request->file('img')->store('posts', 'public');
+            }
 
-        return $this->apiResponse(true, new TravelPostResource($post), 201);
+            $data = $request->validated();
+
+            //salvo nel db il percorso dell'immagine
+            $data['img'] = $imagePath;
+            //creo il post a partire dall'utente
+            $post = Auth::user()->travelPosts()->create($data);
+
+            //ritorno il post creato
+            return $this->apiResponse(true, new TravelPostResource($post), 201);
+        } catch (\Throwable $th) {
+            //se qualcosa va storto, elimino l'immagine dallo storage
+            if ($imagePath) {
+                Storage::disk('public')->delete($imagePath);
+            }
+
+            //lancio l'errore gestito globalmente
+            throw $th;
+        }
     }
 
-    public function show(string $id)
+    public function show(TravelPost $travel_post)
     {
         $authId = auth('sanctum')->id();
 
-        $travel_post = TravelPost::whereId($id)
-            ->withCount(['likes', 'comments'])
-            ->withExists([
+        $travel_post
+            ->loadCount(['likes', 'comments'])
+            ->loadExists([
                 'likes as liked_by_me' => function ($q) use ($authId) {
                     $q->where('user_id', $authId);
                 },
             ])
-            ->with([
+            ->load([
                 'comments' => function ($query) {
                     //carico i commenti, ordinandoli per ultimi pubblicati
                     $query->orderBy('created_at', 'desc');
                 },
-            ])
-
-            ->first();
+                'user',
+            ]);
+            
         return $this->apiResponse(true, new TravelPostResource($travel_post));
     }
 
     public function update(UpdateTravelPostRequest $request, TravelPost $travel_post)
     {
+        //inizializzo i path
+        $oldImagePath = $travel_post->img;
+        $newImagePath = $oldImagePath;
 
-        $data = $request->validated();
+        try {
+            if ($request->hasFile('img')) {
+                $newImagePath = $request->file('img')->store('posts', 'public');
+            }
 
-        $travel_post->update($data);
+            $data = $request->validated();
 
-        return $this->apiResponse(true, new TravelPostResource($travel_post->refresh()));
+            if ($newImagePath) {
+                $data['img'] = $newImagePath;
+            }
+
+            if ($request->hasFile('img') && $oldImagePath && $newImagePath !== $oldImagePath) {
+                Storage::disk('public')->delete($oldImagePath);
+            }
+
+            $travel_post->update($data);
+
+            return $this->apiResponse(true, new TravelPostResource($travel_post->refresh()));
+        } catch (\Throwable $th) {
+            if ($request->hasFile('img') && $newImagePath && $newImagePath !== $oldImagePath) {
+                Storage::disk('public')->delete($newImagePath);
+            }
+            throw $th;
+        }
     }
 
     public function destroy(TravelPost $travel_post)
     {
+        $imagePath = $travel_post->img;
+
         $travel_post->delete();
+
+        if ($imagePath) {
+            Storage::disk('public')->delete($imagePath);
+        }
 
         return $this->apiResponse(true, 'Post deleted successfully', 200);
     }

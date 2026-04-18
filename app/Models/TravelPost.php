@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['location', 'country', 'image', 'description', 'user_id'])]
+#[Fillable(['location', 'country', 'img', 'description', 'user_id'])]
 class TravelPost extends Model
 {
     use HasUuids;
