@@ -28,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 //a volte alcuni status code sono stringhe SQL
                 $message = 'Internal Server Error';
-                $error = $e->getMessage();
+                $error = $e->getMessage() . $e->getFile() . $e->getLine();
 
                 if ($e instanceof AuthenticationException) {
                     $code = 401;

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\TravelPostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -52,3 +53,9 @@ Route::prefix('/auth')
         Route::post('/logout', 'logout')->name('auth.logout');
         Route::get('/me', 'me')->name('auth.me');
     });
+
+/* Rotte per il recupero della password */
+Route::controller(PasswordResetController::class)->group(function() {
+    Route::post('/forgot-password', 'forgotPassword')->name('password.request');
+    Route::post('/reset-password', 'resetPassword')->name('password.reset');
+});
